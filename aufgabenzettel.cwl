@@ -4,6 +4,7 @@
 #include:amsthm
 #include:bbm
 #include:bookmark
+#include:booktabs
 #include:cancel
 #include:enumerate
 #include:float
@@ -12,13 +13,20 @@
 #include:letltxmacro
 #include:listings
 #include:lmodern
+#include:longtable
 #include:mathtools
+#include:siunitx
+#include:tabularx
 #include:verbatim
 #include:xcolor
 \AbgabeText#n
 \Loesung#n
 \MatlabText#n
 \RR#m
+\NN#m
+\ZZ#m
+\QQ#m
+\CC#m
 \abgabedatumB{date}
 \abgabedatum{date}
 \assistentB{assistent}
@@ -47,10 +55,13 @@
 
 # math operators
 \Var#m
+\Cov#m
+\argmin#m
 \arcsinh#m
 \Id#m
 \Grad#m
 \ggT#m
+\kgV#m
 \Spur#m
 \Bild#m
 \Kern#m
