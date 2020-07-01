@@ -1,0 +1,229 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{aufgabenzettel}[2020/06/30 v1.10 Aufgabenzettel fuer das Mathe-Institut UzL]
+
+%%%%%%%%%%%%%%%%%%%% PACKAGES %%%%%%%%%%%%%%%%%%%%
+\RequirePackage{lmodern}
+
+
+%%% Auxiliary stuff
+\RequirePackage{graphicx}
+\RequirePackage{xcolor}
+\RequirePackage{letltxmacro} % only for Darmstadt compatibility
+
+%%% Customize lists
+\RequirePackage{enumerate}
+%%% Tables
+\RequirePackage{longtable} % tables over page breaks
+\RequirePackage{booktabs} % better looking tables with: toprule, midrule, bottomrule
+\RequirePackage{tabularx} % tables to specified width
+%%% Mathematics
+\RequirePackage[intlimits]{mathtools} % loads amsmath
+\RequirePackage{amsthm,amssymb}
+\RequirePackage{bbm} % Fuer Indikatorfunktion (Schriftsaetze)
+\RequirePackage{cancel} % Fuer gekuerzte Brueche
+\RequirePackage{siunitx} % Fuer Einheiten in Mathe und Text
+%%% Source code
+\RequirePackage{listings}
+\RequirePackage{float}
+\RequirePackage{algorithm} % Fuer Pseudoprogrammcode
+\RequirePackage{algpseudocode} % Fuer Pseudoprogrammcode
+\RequirePackage{verbatim}
+
+%%% Load hyperref and bookmark last
+\RequirePackage[bookmarksnumbered,colorlinks=true,pdfpagelabels]{hyperref}
+\RequirePackage{bookmark}
+%%%%%%%%%%%%%%%%%%%% END PACKAGES %%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%% DEFAULT MATH COMMANDS %%%%%%%%%%%%%%%%%%%%
+\newcommand{\NN}{\mathbb{N}}    % Menge der natuerlichen Zahlen
+\newcommand{\ZZ}{\mathbb{Z}}    % Menge der ganzen Zahlen
+\newcommand{\QQ}{\mathbb{Q}}    % Menge der rationalen Zahlen
+\newcommand{\RR}{\mathbb{R}}    % Menge der reellen Zahlen
+\newcommand{\CC}{\mathbb{C}}    % Menge der komplexen Zahlen
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\argmin}{argmin}
+\DeclareMathOperator{\arcsinh}{arcsinh}
+\DeclareMathOperator{\Id}{Id}
+\DeclareMathOperator{\Grad}{grad}
+\DeclareMathOperator{\ggT}{ggT}
+\DeclareMathOperator{\kgV}{kgV}
+\DeclareMathOperator{\Spur}{Spur}
+\DeclareMathOperator{\Bild}{Bild}
+\DeclareMathOperator{\Kern}{Kern}
+\DeclareMathOperator{\Rang}{Rang}
+\DeclareMathOperator{\Prob}{P}
+\DeclareMathOperator{\cond}{cond}
+\DeclareMathOperator{\eps}{eps}
+\DeclareMathOperator{\rd}{rd}
+\DeclareMathOperator{\glb}{glb}
+\DeclareMathOperator{\tr}{tr}
+%%%%%%%%%%%%%%%%%%%% END DEFAULT MATH COMMANDS %%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%% DEFAULT CONFIGURATION %%%%%%%%%%%%%%%%%%%%
+%%% setup listings
+\definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
+\definecolor{mylilas}{RGB}{170,55,241}
+\lstset{language=Matlab,%
+    %basicstyle=\color{red},
+    breaklines=true,%
+    morekeywords={matlab2tikz},
+    keywordstyle=\color{blue},%
+    morekeywords=[2]{1}, keywordstyle=[2]{\color{black}},
+    identifierstyle=\color{black},%
+    stringstyle=\color{mylilas},
+    commentstyle=\color{mygreen},%
+    showstringspaces=false,%without this there will be a symbol in the places where there is a space
+    numbers=left,%
+    numberstyle={\tiny \color{black}},% size of the numbers
+    numbersep=9pt, % this defines how far the numbers are from the text
+    %emph=[1]{for,end,break},emphstyle=[1]\color{red}, %some words to emphasise
+    %emph=[2]{word1,word2}, emphstyle=[2]{style},   
+    %frame=L, 
+}
+%%%%%%%%%%%%%%%%%%%% END DEFAULT CONFIGURATION %%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%% AUXILIARY COMMANDS %%%%%%%%%%%%%%%%%%%%
+%%% Print second argument if first is not empty
+\newcommand*{\ifnotempty}[2]{\if\relax\expandafter\detokenize\expandafter{#1}\relax\else#2\fi}
+%%%%%%%%%%%%%%%%%%%% END AUXILIARY COMMANDS %%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%% EXERCISE/SOLUTION ENV %%%%%%%%%%%%%%%%%%%%
+%%% New if to show or hide solutions
+\newif\if@loesung\@loesungfalse
+
+%%% Custom section for exercises and solutions
+\newcommand{\meinabschnitt}{%
+    \@startsection{meinabschnitt}{2}{\z@}% name, level, indent
+    {-15pt \@plus -5pt \@minus -2pt}% beforeskip
+    {5pt \@plus 2pt}% afterskip
+    {\normalfont\bfseries}% style
+}
+\newcommand{\meinabschnittmark}[1]{}
+
+%%% Custom section for a block of exercises
+% sets an optional letter for exercises
+\newcommand{\@aufgabeBS}{}
+\newcommand{\aufgabenblock}[2][]{%
+    \stepcounter{section}\renewcommand{\@aufgabeBS}{#1}%
+    \@startsection{section}{1}{\z@}% name, level, indent
+    {25pt \@plus 10pt \@minus 5pt}% beforeskip
+    {15pt \@plus 1pt}% afterskip
+    {\normalfont\bfseries\centering}*{#2}% style
+}
+
+%%% Actual environments for exercises and solutions
+\newcounter{@aufgaben}[section]
+\newenvironment{aufgabe}[1][]{%
+    \stepcounter{@aufgaben}%
+    \meinabschnitt*{Aufgabe \@aufgabeBS\arabic{@aufgaben}.\ifnotempty{#1}{\quad {\mdseries(#1)}}}
+}{}
+\newenvironment{loesung}{}{}
+\newcommand{\mitLoesung}{%
+    \@loesungtrue%
+    \renewenvironment{loesung}{\meinabschnitt*{Lösung:}}{}%{\hfil\rule{0.5\textwidth}{0.4pt}}
+}
+\newcommand{\ohneLoesung}{%
+    \@loesungfalse%
+    \renewenvironment{loesung}{\setbox\z@\vbox\bgroup}{\egroup\setbox\z@=\null}%
+}
+\ohneLoesung % set default 
+
+%%% Do only with or without solutions
+\newcommand{\wennLoesung}[1]{\if@loesung#1\fi}
+\newcommand{\wennohneLoesung}[1]{\if@loesung\else#1\fi}
+%%%%%%%%%%%%%%%%%%%% END EXERCISE/SOLUTION ENV %%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%% TITLE INFO %%%%%%%%%%%%%%%%%%%%
+%%% Commands to set title info
+\DeclareRobustCommand*{\vorlesung}[1]{\gdef\@vorlesung{#1}}
+\DeclareRobustCommand*{\studiengang}[1]{\gdef\@studiengang{#1}}
+\DeclareRobustCommand*{\dozent}[1]{\gdef\@dozent{#1}}
+\DeclareRobustCommand*{\assistent}[1]{\gdef\@assistent{#1}}
+\DeclareRobustCommand*{\assistentB}[1]{\gdef\@assistentB{#1}}
+\DeclareRobustCommand*{\semester}[1]{\gdef\@semester{#1}}
+\DeclareRobustCommand*{\ausgabedatum}[1]{\gdef\@ausgabedatum{#1}}
+\DeclareRobustCommand*{\abgabedatum}[1]{\gdef\@abgabedatumA{#1}}
+\DeclareRobustCommand*{\abgabedatumB}[1]{\gdef\@abgabedatumB{#1}}
+\DeclareRobustCommand*{\uebungsblattnummer}[1]{\gdef\@uebungsblattnummer{#1}}
+\DeclareRobustCommand*{\uebungsblattname}[1]{\gdef\@uebungsblattname{#1}}
+%\DeclareRobustCommand*{\}[1]{\gdef\@{#1}}
+
+%%% Default values
+%\vorlesung{}
+%\studiengang{}
+%\dozent{}
+%\assistent{}
+%\assistentB{}
+%\semester{}
+%\ausgabedatum{}
+%\abgabedatum{}
+%\abgabedatumB{}
+%\uebungsblattnummer{}
+%\uebungsblattname{Übung}
+\vorlesung{\textbackslash vorlesung}
+\studiengang{\textbackslash studiengang}
+\dozent{\textbackslash dozent}
+\assistent{\textbackslash assistent}
+\assistentB{\textbackslash assistentB}
+\semester{\textbackslash semester}
+\ausgabedatum{\textbackslash ausgabedatum}
+\abgabedatum{\textbackslash abgabedatum}
+\abgabedatumB{\textbackslash abgabedatumB}
+\uebungsblattnummer{\textbackslash uebungsblattnummer}
+\uebungsblattname{\textbackslash uebungsblattname}
+%%%%%%%%%%%%%%%%%%%% END TITLE INFO %%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%% MAKETITLE %%%%%%%%%%%%%%%%%%%%
+\renewcommand{\@maketitle}{
+    \noindent\includegraphics[viewport=25 0 175 -50, width=5cm]{Logo_Inst_Mathematik_CMYK}
+    
+    \bigskip\noindent\@dozent \hfill \@semester\\
+    \null\@assistent \hfill \@ausgabedatum%
+    \ifnotempty{\@assistentB}{\\\@assistentB}%
+    \bigskip
+    
+    \begin{center}
+            {\Large{\textbf{\@vorlesung}}}%
+            \ifnotempty{\@uebungsblattname}{%
+                \ifnotempty{\@vorlesung}{\\\vspace*{.4cm}}%
+                \large\bfseries%
+                    \ifnotempty{\@uebungsblattnummer}{\@uebungsblattnummer.\ }%
+                    \@uebungsblattname%
+                    \ifnotempty{\@studiengang}{\ (\@studiengang)}%
+                    \wennLoesung{ -- Lösungsvorschläge}%
+            }
+    \end{center}
+    \par
+    \vskip 1em
+}
+%%%%%%%%%%%%%%%%%%%% END MAKETITLE %%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%% USEFUL STRINGS %%%%%%%%%%%%%%%%%%%%
+\newcommand{\AbgabeText}{\par\bigskip\noindent\emph{\textbf{Abgabe:} \@abgabedatumA{} \ifnotempty{\@abgabedatumB}{bzw.\ \@abgabedatumB{}\ }zu Beginn der Übung.}}
+\newcommand{\MatlabText}{\par\noindent\emph{Bitte laden Sie Ihre MATLAB-Dateien im Moodle-Kurs hoch \textbf{und} geben darüber hinaus den MATLAB-Code ausgedruckt mit den anderen Aufgabenlösungen ab (verwenden Sie hierzu den MATLAB-Befehl \texttt{publish}). Benennen Sie die hochzuladene Datei mit der Übungsblattnummer sowie Ihren Namen.}}
+%%%%%%%%%%%%%%%%%%%% END USEFUL STRINGS %%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%% DARMSTADT COMPATIBILITY %%%%%%%%%%%%%%%%%%%%
+%\RequirePackage{letltxmacro} % already loaded above
+%%% Also allow the spelling with capital L
+\let\Loesung=\loesung\let\endLoesung=\endloesung%
+\let\@ORIGmitLoesung=\mitLoesung%
+\let\@ORIGohneLoesung=\ohneLoesung%
+\renewcommand{\mitLoesung}{\@ORIGmitLoesung\let\Loesung=\loesung\let\endLoesung=\endloesung}%
+\renewcommand{\ohneLoesung}{\@ORIGohneLoesung\let\Loesung=\loesung\let\endLoesung=\endloesung}%
+%%% Gobble the first line if it begins with an \item
+\LetLtxMacro{\@ORIGaufgabe}{\aufgabe}%
+\newcommand{\@gobbleline}[1]{\@ifnextchar\\{\ignorespaces\@gobble}{\@gobbleline}}%
+\renewcommand{\aufgabe}[1][]{\@ORIGaufgabe[#1]\@ifnextchar\item{\@gobbleline}{}}%
+%%%%%%%%%%%%%%%%%%%% END DARMSTADT COMPATIBILITY %%%%%%%%%%%%%%%%%%%%
+
+\endinput

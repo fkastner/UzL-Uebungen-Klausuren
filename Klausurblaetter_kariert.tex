@@ -1,0 +1,33 @@
+\documentclass[a4paper, 12pt]{article}
+\usepackage{tikz}
+
+
+\begin{document}
+\pagestyle{empty}
+
+
+\foreach \n in {1,...,5}{
+    
+\begin{tikzpicture}[remember picture, overlay]
+\node at (current page.south west) {
+    \begin{tikzpicture}[remember picture, overlay]
+        %% Grid:
+        \draw[gray, very thin,step=5mm] (9.999mm,9.999mm) grid (180mm,275mm);
+        %% Header:
+        \draw (10mm,280mm) node[above right,fill=white] {Name: \rule{6cm}{0.5pt}\hspace{1cm} Matrikel-Nr.: \rule{4cm}{0.5pt} \hspace{2cm} Blatt \n};
+    \end{tikzpicture}
+};
+\end{tikzpicture}
+\newpage
+\begin{tikzpicture}[remember picture, overlay]
+\node at (current page.south west) {
+    \begin{tikzpicture}[remember picture, overlay]
+        % Grid:
+        \draw[gray, very thin,step=0.5cm] (9.999mm,9.999mm) grid (180mm,275mm);
+    \end{tikzpicture}
+};
+\end{tikzpicture}
+\newpage
+
+} % endfor
+\end{document}
