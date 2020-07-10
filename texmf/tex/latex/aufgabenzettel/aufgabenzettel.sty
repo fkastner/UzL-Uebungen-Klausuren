@@ -1,9 +1,8 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{aufgabenzettel}[2020/06/30 v1.10 Aufgabenzettel fuer das Mathe-Institut UzL]
+\ProvidesPackage{aufgabenzettel}[2020/07/10 v1.20 Aufgabenzettel fuer das Mathe-Institut UzL]
 
 %%%%%%%%%%%%%%%%%%%% PACKAGES %%%%%%%%%%%%%%%%%%%%
 \RequirePackage{lmodern}
-
 
 %%% Auxiliary stuff
 \RequirePackage{graphicx}
@@ -33,6 +32,18 @@
 \RequirePackage[bookmarksnumbered,colorlinks=true,pdfpagelabels]{hyperref}
 \RequirePackage{bookmark}
 %%%%%%%%%%%%%%%%%%%% END PACKAGES %%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%% DECLARE OPTIONS %%%%%%%%%%%%%%%%%%%%
+% Choose the relevant title page
+\newif\if@klausur
+\DeclareOption{uebung}{\@klausurfalse}
+\DeclareOption{klausur}{\@klausurtrue}
+% Default Option
+\ExecuteOptions{uebung}
+% Process Options
+\ProcessOptions\relax
+%%%%%%%%%%%%%%%%%%%% END DECLARE OPTIONS %%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%% DEFAULT MATH COMMANDS %%%%%%%%%%%%%%%%%%%%
@@ -139,6 +150,67 @@
 %%%%%%%%%%%%%%%%%%%% END EXERCISE/SOLUTION ENV %%%%%%%%%%%%%%%%%%%%
 
 
+%%%%%%%%%%%%%%%%%%%% PUNKTEBLOCK %%%%%%%%%%%%%%%%%%%%
+\newcount\punkteblock@numargs
+\newcount\punkteblock@sum
+\newcount\punkteblock@cline
+\newif\ifpunkteblock@correctsum
+\def\punkteblock@scanargs#1,#2\relax{%
+    \advance\punkteblock@numargs by 1%
+    \ifnum0<0#1\relax%
+    \advance\punkteblock@sum by #1%
+    \else\punkteblock@correctsumfalse\fi%
+    \xdef\punkteblock@firstrow{\punkteblock@firstrow & \number\punkteblock@numargs}%
+    \xdef\punkteblock@secondrow{\punkteblock@secondrow & #1}%
+    \xdef\punkteblock@thirdrow{\punkteblock@thirdrow & }%
+    \ifx\relax#2\relax\else\expandafter\punkteblock@scanargs\fi#2\relax%
+}
+\newcommand*{\punkteblock}[2][0.8\textwidth]{%
+    % reset values
+    \def\punkteblock@firstrow{Aufgabe}%
+    \def\punkteblock@secondrow{max. Punkte}%
+    \def\punkteblock@thirdrow{err. Punkte}%
+    \punkteblock@numargs=0
+    \punkteblock@sum=0
+    \punkteblock@correctsumtrue
+    % scan the arguments and populate the macros
+    \punkteblock@scanargs#2,\relax
+    % calculate some numbers
+    \punkteblock@cline=\punkteblock@numargs
+    \advance\punkteblock@cline by 2% for the length of the cline
+    \advance\punkteblock@numargs by 1% to have the right number of columns (including sum column)
+    % print the table
+    \begin{center}\large
+        \begin{tabularx}{#1}{|l|*{\punkteblock@numargs}{>{\centering\arraybackslash}X|}l|}
+            \hline
+            \punkteblock@firstrow & ~$ \sum $~ & ~Note:~ \\
+            \hline
+            \punkteblock@secondrow & \ifpunkteblock@correctsum\number\punkteblock@sum\else??\fi & \\
+            \cline{1-\punkteblock@cline}
+            \punkteblock@thirdrow & & \\[.2cm]
+            \hline
+        \end{tabularx}
+    \end{center}%
+}
+%%%%%%%%%%%%%%%%%%%% END PUNKTEBLOCK %%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%% ANKREUZBLOCK %%%%%%%%%%%%%%%%%%%%
+\newenvironment{ankreuzblock}{%
+    \newcommand{\antwort}[2]{%
+        \if##1W\relax\wennLoesung{$ \bigotimes $}\wennohneLoesung{$ \bigcirc $}\else$ \bigcirc $\fi%
+        &%
+        \if##1F\relax\wennLoesung{$ \bigotimes $}\wennohneLoesung{$ \bigcirc $}\else$ \bigcirc $\fi%
+        & ##2 \\%
+    }
+    \tabularx{\linewidth}{ccX}%
+    W & F & \\
+}{%
+    \endtabularx%
+}
+%%%%%%%%%%%%%%%%%%%% END ANKREUZBLOCK %%%%%%%%%%%%%%%%%%%%
+
+
 %%%%%%%%%%%%%%%%%%%% TITLE INFO %%%%%%%%%%%%%%%%%%%%
 %%% Commands to set title info
 \DeclareRobustCommand*{\vorlesung}[1]{\gdef\@vorlesung{#1}}
@@ -181,28 +253,49 @@
 
 
 %%%%%%%%%%%%%%%%%%%% MAKETITLE %%%%%%%%%%%%%%%%%%%%
-\renewcommand{\@maketitle}{
-    \noindent\includegraphics[viewport=25 0 175 -50, width=5cm]{Logo_Inst_Mathematik_CMYK}
-    
-    \bigskip\noindent\@dozent \hfill \@semester\\
-    \null\@assistent \hfill \@ausgabedatum%
-    \ifnotempty{\@assistentB}{\\\@assistentB}%
-    \bigskip
-    
-    \begin{center}
-            {\Large{\textbf{\@vorlesung}}}%
-            \ifnotempty{\@uebungsblattname}{%
-                \ifnotempty{\@vorlesung}{\\\vspace*{.4cm}}%
-                \large\bfseries%
-                    \ifnotempty{\@uebungsblattnummer}{\@uebungsblattnummer.\ }%
-                    \@uebungsblattname%
-                    \ifnotempty{\@studiengang}{\ (\@studiengang)}%
-                    \wennLoesung{ -- Lösungsvorschläge}%
-            }
-    \end{center}
-    \par
-    \vskip 1em
-}
+\if@klausur
+    \renewcommand{\@maketitle}{
+        \vspace*{-2cm}
+        Universit\"at zu L\"ubeck\\
+        Institut f\"ur Mathematik \hfill \@ausgabedatum\break
+        \bigskip\medskip\bigskip
+        \begin{center}
+            {\large\textbf{Klausur zur Veranstaltung}}\\[.4cm]
+            {\Large\textbf{\glqq \@vorlesung\grqq}}%
+            \wennLoesung{\\{\Large\textbf{L\"osungen}}}
+            \\[2cm]
+        \end{center}
+        Bitte in Druckschrift deutlich lesbar ausf\"ullen:\\[.75cm]
+        \begin{tabularx}{\textwidth}{@{}Xp{0.4\textwidth}}
+            Name: \dotfill & Fachrichtung: \dotfill \\[.75cm]
+            Vorname: \dotfill & Matrikel-Nr.: \dotfill\\[.75cm]
+        \end{tabularx}\\
+        Wiederholer: {\Large$\bigcirc$}\\[1.25cm]
+    }
+\else
+    \renewcommand{\@maketitle}{
+        \noindent\includegraphics[viewport=25 0 175 -50, width=5cm]{Logo_Inst_Mathematik_CMYK}
+        
+        \bigskip\noindent\@dozent \hfill \@semester\\
+        \null\@assistent \hfill \@ausgabedatum%
+        \ifnotempty{\@assistentB}{\\\@assistentB}%
+        \bigskip
+        
+        \begin{center}
+                {\Large{\textbf{\@vorlesung}}}%
+                \ifnotempty{\@uebungsblattname}{%
+                    \ifnotempty{\@vorlesung}{\\\vspace*{.4cm}}%
+                    \large\bfseries%
+                        \ifnotempty{\@uebungsblattnummer}{\@uebungsblattnummer.\ }%
+                        \@uebungsblattname%
+                        \ifnotempty{\@studiengang}{\ (\@studiengang)}%
+                        \wennLoesung{ -- Lösungsvorschläge}%
+                }
+        \end{center}
+        \par
+        \vskip 1em
+    }
+\fi
 %%%%%%%%%%%%%%%%%%%% END MAKETITLE %%%%%%%%%%%%%%%%%%%%
 
 

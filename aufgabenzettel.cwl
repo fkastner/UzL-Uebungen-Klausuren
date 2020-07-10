@@ -22,11 +22,6 @@
 \AbgabeText#n
 \Loesung#n
 \MatlabText#n
-\RR#m
-\NN#m
-\ZZ#m
-\QQ#m
-\CC#m
 \abgabedatumB{date}
 \abgabedatum{date}
 \assistentB{assistent}
@@ -53,7 +48,19 @@
 \wennLoesung{text}#n
 \wennohneLoesung{text}#n
 
+#
+\antwort{W/F}{text}#/ankreuzblock
+\begin{ankreuzblock}
+\end{ankreuzblock}
+\punkteblock[width]{2,3,4}
+\punkteblock{2,3,4}
+
 # math operators
+\RR#m
+\NN#m
+\ZZ#m
+\QQ#m
+\CC#m
 \Var#m
 \Cov#m
 \argmin#m
