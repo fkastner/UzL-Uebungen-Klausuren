@@ -131,7 +131,7 @@
 \newcounter{@aufgaben}[section]
 \newenvironment{aufgabe}[1][]{%
     \stepcounter{@aufgaben}%
-    \meinabschnitt*{Aufgabe \@aufgabeBS\arabic{@aufgaben}.\ifnotempty{#1}{\quad {\mdseries(#1)}}}
+    \meinabschnitt*{Aufgabe \@aufgabeBS\arabic{@aufgaben}\ifnotempty{#1}{\quad {\mdseries(#1)}}}
 }{}
 \newenvironment{loesung}{}{}
 \newcommand{\mitLoesung}{%
