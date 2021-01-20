@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{aufgabenzettel}[2020/07/10 v1.20 Aufgabenzettel fuer das Mathe-Institut UzL]
+\ProvidesPackage{aufgabenzettel}[2021/01/20 v1.3.0 Aufgabenzettel fuer das Mathe-Institut UzL]
 
 %%%%%%%%%%%%%%%%%%%% PACKAGES %%%%%%%%%%%%%%%%%%%%
 \RequirePackage{lmodern}
@@ -100,6 +100,8 @@
 %%%%%%%%%%%%%%%%%%%% AUXILIARY COMMANDS %%%%%%%%%%%%%%%%%%%%
 %%% Print second argument if first is not empty
 \newcommand*{\ifnotempty}[2]{\if\relax\expandafter\detokenize\expandafter{#1}\relax\else#2\fi}
+%%% Print third argument if first is not empty or second is not empty
+\newcommand{\iftwonotempty}[3]{\if\relax\expandafter\expandafter\expandafter\detokenize\expandafter\expandafter\expandafter{\expandafter#1#2}\relax\else#3\fi}
 %%%%%%%%%%%%%%%%%%%% END AUXILIARY COMMANDS %%%%%%%%%%%%%%%%%%%%
 
 
@@ -212,43 +214,28 @@
 
 
 %%%%%%%%%%%%%%%%%%%% TITLE INFO %%%%%%%%%%%%%%%%%%%%
-%%% Commands to set title info
-\DeclareRobustCommand*{\vorlesung}[1]{\gdef\@vorlesung{#1}}
-\DeclareRobustCommand*{\studiengang}[1]{\gdef\@studiengang{#1}}
-\DeclareRobustCommand*{\dozent}[1]{\gdef\@dozent{#1}}
-\DeclareRobustCommand*{\assistent}[1]{\gdef\@assistent{#1}}
-\DeclareRobustCommand*{\assistentB}[1]{\gdef\@assistentB{#1}}
-\DeclareRobustCommand*{\semester}[1]{\gdef\@semester{#1}}
-\DeclareRobustCommand*{\ausgabedatum}[1]{\gdef\@ausgabedatum{#1}}
-\DeclareRobustCommand*{\abgabedatum}[1]{\gdef\@abgabedatumA{#1}}
-\DeclareRobustCommand*{\abgabedatumB}[1]{\gdef\@abgabedatumB{#1}}
-\DeclareRobustCommand*{\uebungsblattnummer}[1]{\gdef\@uebungsblattnummer{#1}}
-\DeclareRobustCommand*{\uebungsblattname}[1]{\gdef\@uebungsblattname{#1}}
-%\DeclareRobustCommand*{\}[1]{\gdef\@{#1}}
+%%% Declare commands to set title info
+% these are of form \setXXX
+% and can later be accessed with \XXX
+% the default value is XXX
+\newcommand*{\makedatacmd}[1]{
+    \expandafter\xdef\csname set#1\endcsname##1{% define \setXXX
+        \expandafter\gdef\csname #1\endcsname{##1}% define \XXX
+    }%
+    \csname set#1\endcsname{\textbackslash #1}% set default
+}
 
-%%% Default values
-%\vorlesung{}
-%\studiengang{}
-%\dozent{}
-%\assistent{}
-%\assistentB{}
-%\semester{}
-%\ausgabedatum{}
-%\abgabedatum{}
-%\abgabedatumB{}
-%\uebungsblattnummer{}
-%\uebungsblattname{Übung}
-\vorlesung{\textbackslash vorlesung}
-\studiengang{\textbackslash studiengang}
-\dozent{\textbackslash dozent}
-\assistent{\textbackslash assistent}
-\assistentB{\textbackslash assistentB}
-\semester{\textbackslash semester}
-\ausgabedatum{\textbackslash ausgabedatum}
-\abgabedatum{\textbackslash abgabedatum}
-\abgabedatumB{\textbackslash abgabedatumB}
-\uebungsblattnummer{\textbackslash uebungsblattnummer}
-\uebungsblattname{\textbackslash uebungsblattname}
+\makedatacmd{vorlesung}
+\makedatacmd{studiengang}
+\makedatacmd{dozent}
+\makedatacmd{assistent}
+\makedatacmd{assistentB}
+\makedatacmd{semester}
+\makedatacmd{ausgabedatum}
+\makedatacmd{abgabedatum}
+\makedatacmd{abgabedatumB}
+\makedatacmd{uebungsblattnummer}
+\makedatacmd{uebungsblattname}
 %%%%%%%%%%%%%%%%%%%% END TITLE INFO %%%%%%%%%%%%%%%%%%%%
 
 
@@ -257,11 +244,11 @@
     \renewcommand{\@maketitle}{
         \vspace*{-2cm}
         Universit\"at zu L\"ubeck\\
-        Institut f\"ur Mathematik \hfill \@ausgabedatum\break
+        Institut f\"ur Mathematik \hfill \ausgabedatum\break
         \bigskip\medskip\bigskip
         \begin{center}
             {\large\textbf{Klausur zur Veranstaltung}}\\[.4cm]
-            {\Large\textbf{\glqq \@vorlesung\grqq}}%
+            {\Large\textbf{\glqq \vorlesung\grqq\ifnotempty{\studiengang}{ (\studiengang)}}}%
             \wennLoesung{\\{\Large\textbf{L\"osungen}}}
             \\[2cm]
         \end{center}
@@ -276,31 +263,33 @@
     \renewcommand{\@maketitle}{
         \noindent\includegraphics[viewport=25 0 175 -50, width=5cm]{Logo_Inst_Mathematik_CMYK}
         
-        \bigskip\noindent\@dozent \hfill \@semester\\
-        \null\@assistent \hfill \@ausgabedatum%
-        \ifnotempty{\@assistentB}{\\\@assistentB}%
-        \bigskip
-        
-        \begin{center}
-                {\Large{\textbf{\@vorlesung}}}%
-                \ifnotempty{\@uebungsblattname}{%
-                    \ifnotempty{\@vorlesung}{\\\vspace*{.4cm}}%
-                    \large\bfseries%
-                        \ifnotempty{\@uebungsblattnummer}{\@uebungsblattnummer.\ }%
-                        \@uebungsblattname%
-                        \ifnotempty{\@studiengang}{\ (\@studiengang)}%
-                        \wennLoesung{ -- Lösungsvorschläge}%
-                }
-        \end{center}
-        \par
-        \vskip 1em
+        \bigskip\noindent\dozent \hfill \semester\\
+        \null\assistent \hfill \ausgabedatum%
+        \ifnotempty{\assistentB}{\\\assistentB}%
+        \iftwonotempty{\vorlesung}{\uebungsblattname}{%
+            \bigskip
+            
+            \begin{center}%
+                    \ifnotempty{\vorlesung}{\Large{\textbf{\vorlesung}}}%
+                    \ifnotempty{\uebungsblattname}{%
+                        \ifnotempty{\vorlesung}{\\\vspace*{.4cm}}%
+                        \large\bfseries%
+                            \ifnotempty{\uebungsblattnummer}{\uebungsblattnummer.\ }%
+                            \uebungsblattname%
+                            \ifnotempty{\studiengang}{\ (\studiengang)}%
+                            \wennLoesung{ -- Lösungsvorschläge}%
+                    }%
+            \end{center}
+            \par
+            \vskip 1em%
+        }%
     }
 \fi
 %%%%%%%%%%%%%%%%%%%% END MAKETITLE %%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%% USEFUL STRINGS %%%%%%%%%%%%%%%%%%%%
-\newcommand{\AbgabeText}{\par\bigskip\noindent\emph{\textbf{Abgabe:} \@abgabedatumA{} \ifnotempty{\@abgabedatumB}{bzw.\ \@abgabedatumB{}\ }zu Beginn der Übung.}}
+\newcommand{\AbgabeText}{\par\bigskip\noindent\emph{\textbf{Abgabe:} \abgabedatum{} \ifnotempty{\abgabedatumB}{bzw.\ \abgabedatumB{}\ }zu Beginn der Übung.}}
 \newcommand{\MatlabText}{\par\noindent\emph{Bitte laden Sie Ihre MATLAB-Dateien im Moodle-Kurs hoch \textbf{und} geben darüber hinaus den MATLAB-Code ausgedruckt mit den anderen Aufgabenlösungen ab (verwenden Sie hierzu den MATLAB-Befehl \texttt{publish}). Benennen Sie die hochzuladene Datei mit der Übungsblattnummer sowie Ihren Namen.}}
 %%%%%%%%%%%%%%%%%%%% END USEFUL STRINGS %%%%%%%%%%%%%%%%%%%%
 

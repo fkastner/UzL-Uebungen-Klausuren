@@ -1,3 +1,5 @@
+# completion file for aufgabenzettel.sty v1.3.0
+
 #include:algorithm
 #include:algpseudocode
 #include:amssymb
@@ -19,38 +21,60 @@
 #include:tabularx
 #include:verbatim
 #include:xcolor
-\AbgabeText#n
-\Loesung#n
-\MatlabText#n
-\abgabedatumB{date}
-\abgabedatum{date}
-\assistentB{assistent}
-\assistent{assistent}
+
+# main commands
 \aufgabenblock{title}#L2
 \aufgabenblock[A]{title}#L2
-\ausgabedatum{date}
 \begin{aufgabe}
 \begin{aufgabe}[text]
 \begin{loesung}
-\dozent{dozent}
 \end{aufgabe}
 \end{loesung}
-\ifnotempty{macro}{text}#n
 \meinabschnitt#L2
 \meinabschnittmark{arg1}#n
 \mitLoesung#n
 \ohneLoesung#n
-\semester{semester}
-\studiengang{name}
-\uebungsblattname{name}
-\uebungsblattnummer{number}
-\vorlesung{name}
 \wennLoesung{text}#n
 \wennohneLoesung{text}#n
+\Loesung#n
+\AbgabeText#n
+\MatlabText#n
 
-#
+# auxiliary commands
+\ifnotempty{macro}{text}#n
+\iftwonotempty{macro}{macro}{text}#n
+\makedatacmd{cmd}#Sd
+
+# data setter commands
+\setvorlesung{name}
+\setsemester{semester}
+\setstudiengang{name}
+\setdozent{dozent}
+\setassistent{assistent}
+\setassistentB{assistent}
+\setausgabedatum{date}
+\setabgabedatum{date}
+\setabgabedatumB{date}
+\setuebungsblattnummer{number}
+\setuebungsblattname{name}
+
+# data getter commands
+\vorlesung{}#n
+\semester{}#n
+\studiengang{}#n
+\dozent{}#n
+\assistent{}#n
+\assistentB{}#n
+\ausgabedatum{}#n
+\abgabedatum{}#n
+\abgabedatumB{}#n
+\uebungsblattnummer{}#n
+\uebungsblattname{}#n
+
+# 
 \antwort{W/F}{text}#/ankreuzblock
 \begin{ankreuzblock}
+\begin{ankreuzblock}%\\antwort{W}{%|}%\\end{ankreuzblock}#M
 \end{ankreuzblock}
 \punkteblock[width]{2,3,4}
 \punkteblock{2,3,4}
