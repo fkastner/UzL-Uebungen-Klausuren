@@ -1,6 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{aufgabenzettel}[2021/01/20 v1.3.1 Aufgabenzettel fuer das Mathe-Institut UzL]
-
+\ProvidesPackage{aufgabenzettel}[2021/04/01 v1.4.0 Aufgabenzettel fuer das Mathe-Institut UzL]
+\PackageInfo{aufgabenzettel}{Version 2021/04/01 v1.4.0}
 %%%%%%%%%%%%%%%%%%%% PACKAGES %%%%%%%%%%%%%%%%%%%%
 \RequirePackage{lmodern}
 
@@ -26,7 +26,7 @@
 \RequirePackage{float}
 \RequirePackage{algorithm} % Fuer Pseudoprogrammcode
 \RequirePackage{algpseudocode} % Fuer Pseudoprogrammcode
-\RequirePackage{verbatim}
+\RequirePackage{verbatim} % internal use: discarded solution environments
 
 %%% Load hyperref and bookmark last
 \RequirePackage[bookmarksnumbered,colorlinks=true,pdfpagelabels]{hyperref}
@@ -37,8 +37,10 @@
 %%%%%%%%%%%%%%%%%%%% DECLARE OPTIONS %%%%%%%%%%%%%%%%%%%%
 % Choose the relevant title page
 \newif\if@klausur
+\newif\if@notitle
 \DeclareOption{uebung}{\@klausurfalse}
 \DeclareOption{klausur}{\@klausurtrue}
+\DeclareOption{notitle}{\@notitletrue}
 % Default Option
 \ExecuteOptions{uebung}
 % Process Options
@@ -91,8 +93,8 @@
     numberstyle={\tiny \color{black}},% size of the numbers
     numbersep=9pt, % this defines how far the numbers are from the text
     %emph=[1]{for,end,break},emphstyle=[1]\color{red}, %some words to emphasise
-    %emph=[2]{word1,word2}, emphstyle=[2]{style},   
-    %frame=L, 
+    %emph=[2]{word1,word2}, emphstyle=[2]{style},
+    %frame=L,
 }
 %%%%%%%%%%%%%%%%%%%% END DEFAULT CONFIGURATION %%%%%%%%%%%%%%%%%%%%
 
@@ -112,7 +114,7 @@
 %%% Custom section for exercises and solutions
 \newcommand{\meinabschnitt}{%
     \@startsection{meinabschnitt}{2}{\z@}% name, level, indent
-    {-15pt \@plus -5pt \@minus -2pt}% beforeskip
+    {-20pt \@plus -5pt \@minus -2pt}% beforeskip
     {5pt \@plus 2pt}% afterskip
     {\normalfont\bfseries}% style
 }
@@ -125,7 +127,7 @@
     \stepcounter{section}\renewcommand{\@aufgabeBS}{#1}%
     \@startsection{section}{1}{\z@}% name, level, indent
     {25pt \@plus 10pt \@minus 5pt}% beforeskip
-    {15pt \@plus 1pt}% afterskip
+    {20pt \@plus 2pt \@minus 5pt}% afterskip
     {\normalfont\bfseries\centering}*{#2}% style
 }
 
@@ -136,19 +138,34 @@
     \meinabschnitt*{Aufgabe \@aufgabeBS\arabic{@aufgaben}\ifnotempty{#1}{\quad {\mdseries(#1)}}}
 }{}
 \newenvironment{loesung}{}{}
+% If with solutions: define loesung as meinabschnitt
 \newcommand{\mitLoesung}{%
     \@loesungtrue%
     \renewenvironment{loesung}{\meinabschnitt*{Lösung:}}{}%{\hfil\rule{0.5\textwidth}{0.4pt}}
 }
+% If without solutions: define loesung to discard its content
 \newcommand{\ohneLoesung}{%
     \@loesungfalse%
-    \renewenvironment{loesung}{\setbox\z@\vbox\bgroup}{\egroup\setbox\z@=\null}%
+    \let\loesung=\comment% Use comment environment from verbatim package
+    \let\endloesung=\endcomment%
+%    \renewenvironment{loesung}{\setbox\z@\vbox\bgroup}{\egroup\setbox\z@=\null}%
 }
-\ohneLoesung % set default 
+\ohneLoesung % set default
 
 %%% Do only with or without solutions
 \newcommand{\wennLoesung}[1]{\if@loesung#1\fi}
 \newcommand{\wennohneLoesung}[1]{\if@loesung\else#1\fi}
+
+%%% Routine to automatically create an additional file with solutions
+% whose filename is given as the first parameter (without extension)
+\newcommand{\mitLoesungsDatei}[1]{
+    \ifx\azextraloesung\undefined%
+    \ifnum\pdfshellescape=1%
+    \PackageInfo{aufgabenzettel}{Writing file with solutions to `#1.tex'.}
+    \immediate\write18{pdflatex --interaction=nonstopmode --jobname="#1" "\gdef\string\azextraloesung{1}\string\input\space\jobname"}%
+    \else\PackageWarning{aufgabenzettel}{You must enable --shell-escape to use this feature: `\\mitLoesungsDatei'.}\fi%
+    \else\mitLoesung\fi%
+}
 %%%%%%%%%%%%%%%%%%%% END EXERCISE/SOLUTION ENV %%%%%%%%%%%%%%%%%%%%
 
 
@@ -189,7 +206,7 @@
             \hline
             \punkteblock@secondrow & \ifpunkteblock@correctsum\number\punkteblock@sum\else??\fi & \\
             \cline{1-\punkteblock@cline}
-            \punkteblock@thirdrow & & \\[.2cm]
+            \punkteblock@thirdrow & & \\%[.2cm]
             \hline
         \end{tabularx}
     \end{center}%
@@ -236,10 +253,14 @@
 \makedatacmd{abgabedatumB}
 \makedatacmd{uebungsblattnummer}
 \makedatacmd{uebungsblattname}
+
+%%% Command to set the logo filename
+\makedatacmd{logo}\setlogo{}
 %%%%%%%%%%%%%%%%%%%% END TITLE INFO %%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%% MAKETITLE %%%%%%%%%%%%%%%%%%%%
+\if@notitle\else%
 \if@klausur
     \renewcommand{\@maketitle}{
         \vspace*{-2cm}
@@ -259,16 +280,17 @@
         \end{tabularx}\\
         Wiederholer: {\Large$\bigcirc$}\\[1.25cm]
     }
-\else
+\else% if@klausur
     \renewcommand{\@maketitle}{
-        \noindent\includegraphics[viewport=25 0 175 -50, width=5cm]{Logo_Inst_Mathematik_CMYK}
-        
-        \bigskip\noindent\dozent \hfill \semester\\
+        \IfFileExists{\logo}%
+            {\vspace*{-2.5cm}\noindent\includegraphics[width=8.5cm]{\logo}\par\bigskip}%
+            {\ifnotempty{\logo}{\PackageWarning{aufgabenzettel}{Logo ``\logo'' nicht gefunden.}}}
+        \noindent\dozent \hfill \semester\\
         \null\assistent \hfill \ausgabedatum%
         \ifnotempty{\assistentB}{\\\assistentB}%
         \iftwonotempty{\vorlesung}{\uebungsblattname}{%
             \bigskip
-            
+
             \begin{center}%
                     \ifnotempty{\vorlesung}{\Large{\textbf{\vorlesung}}}%
                     \ifnotempty{\uebungsblattname}{%
@@ -284,7 +306,8 @@
             \vskip 1em%
         }%
     }
-\fi
+\fi% if@klausur
+\fi% if@notitle
 %%%%%%%%%%%%%%%%%%%% END MAKETITLE %%%%%%%%%%%%%%%%%%%%
 
 

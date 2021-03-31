@@ -1,4 +1,4 @@
-# completion file for aufgabenzettel.sty v1.3.0
+# completion file for aufgabenzettel.sty v1.4.0
 
 #include:algorithm
 #include:algpseudocode
@@ -25,8 +25,8 @@
 # main commands
 \aufgabenblock{title}#L2
 \aufgabenblock[A]{title}#L2
-\begin{aufgabe}
-\begin{aufgabe}[text]
+\begin{aufgabe}#L3
+\begin{aufgabe}[text]#L3
 \begin{loesung}
 \end{aufgabe}
 \end{loesung}
@@ -34,6 +34,7 @@
 \meinabschnittmark{arg1}#n
 \mitLoesung#n
 \ohneLoesung#n
+\mitLoesungsDatei{filename}#n
 \wennLoesung{text}#n
 \wennohneLoesung{text}#n
 \Loesung#n
@@ -57,6 +58,7 @@
 \setabgabedatumB{date}
 \setuebungsblattnummer{number}
 \setuebungsblattname{name}
+\setlogo{filename}
 
 # data getter commands
 \vorlesung{}#n
@@ -70,6 +72,7 @@
 \abgabedatumB{}#n
 \uebungsblattnummer{}#n
 \uebungsblattname{}#n
+\logo{}#n
 
 # 
 \antwort{W/F}{text}#/ankreuzblock
