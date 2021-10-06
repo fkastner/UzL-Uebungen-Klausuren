@@ -1,6 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{aufgabenzettel}[2021/04/01 v1.4.0 Aufgabenzettel fuer das Mathe-Institut UzL]
-\PackageInfo{aufgabenzettel}{Version 2021/04/01 v1.4.0}
+\ProvidesPackage{aufgabenzettel}[2021/10/06 v1.5.0 Aufgabenzettel fuer das Mathe-Institut UzL]
+\PackageInfo{aufgabenzettel}{Version 2021/10/06 v1.5.0}
 %%%%%%%%%%%%%%%%%%%% PACKAGES %%%%%%%%%%%%%%%%%%%%
 \RequirePackage{lmodern}
 
@@ -125,23 +125,29 @@
 \newcommand{\@aufgabeBS}{}
 \newcommand{\aufgabenblock}[2][]{%
     \stepcounter{section}\renewcommand{\@aufgabeBS}{#1}%
+%    \currentpdfbookmark{#2}{exblock-\detokenize{#2}}
     \@startsection{section}{1}{\z@}% name, level, indent
     {25pt \@plus 10pt \@minus 5pt}% beforeskip
     {20pt \@plus 2pt \@minus 5pt}% afterskip
     {\normalfont\bfseries\centering}*{#2}% style
+    \addcontentsline{toc}{section}{#2}% add pdf bookmark
 }
 
 %%% Actual environments for exercises and solutions
 \newcounter{@aufgaben}[section]
 \newenvironment{aufgabe}[1][]{%
     \stepcounter{@aufgaben}%
-    \meinabschnitt*{Aufgabe \@aufgabeBS\arabic{@aufgaben}\ifnotempty{#1}{\quad {\mdseries(#1)}}}
+    \meinabschnitt*{Aufgabe \@aufgabeBS\arabic{@aufgaben}\ifnotempty{#1}{\quad {\mdseries(#1)}}}%
+    \addcontentsline{toc}{subsection}{Aufgabe \@aufgabeBS\arabic{@aufgaben}}% add pdf bookmark
 }{}
 \newenvironment{loesung}{}{}
 % If with solutions: define loesung as meinabschnitt
 \newcommand{\mitLoesung}{%
     \@loesungtrue%
-    \renewenvironment{loesung}{\meinabschnitt*{Lösung:}}{}%{\hfil\rule{0.5\textwidth}{0.4pt}}
+    \renewenvironment{loesung}{%
+        \meinabschnitt*{Lösung:}%
+        \addcontentsline{toc}{subsection}{Lösung}% add pdf bookmark
+    }{}%{\hfil\rule{0.5\textwidth}{0.4pt}}
 }
 % If without solutions: define loesung to discard its content
 \newcommand{\ohneLoesung}{%
