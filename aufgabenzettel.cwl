@@ -1,4 +1,4 @@
-# completion file for aufgabenzettel.sty v1.4.0
+# completion file for aufgabenzettel.sty v1.6.0
 
 #include:algorithm
 #include:algpseudocode
@@ -40,6 +40,10 @@
 \Loesung#n
 \AbgabeText#n
 \MatlabText#n
+
+# input directly from file
+\inputaufgabe{file}#i
+\inputaufgabe*{file}#i*
 
 # auxiliary commands
 \ifnotempty{macro}{text}#n

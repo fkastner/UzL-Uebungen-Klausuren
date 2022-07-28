@@ -1,6 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{aufgabenzettel}[2021/10/06 v1.5.1 Aufgabenzettel fuer das Mathe-Institut UzL]
-\PackageInfo{aufgabenzettel}{Version 2021/10/25 v1.5.1}
+\ProvidesPackage{aufgabenzettel}[2022/07/28 v1.6.0 Aufgabenzettel fuer das Mathe-Institut UzL]
+\PackageInfo{aufgabenzettel}{Version 2022/07/28 v1.6.0}
 %%%%%%%%%%%%%%%%%%%% PACKAGES %%%%%%%%%%%%%%%%%%%%
 \RequirePackage{lmodern}
 
@@ -146,7 +146,7 @@
     \@loesungtrue%
     \renewenvironment{loesung}{%
         \meinabschnitt*{Lösung:}%
-        \addcontentsline{toc}{subsection}{Lösung}% add pdf bookmark
+        \addcontentsline{toc}{subsubsection}{Lösung}% add pdf bookmark
     }{}%{\hfil\rule{0.5\textwidth}{0.4pt}}
 }
 % If without solutions: define loesung to discard its content
@@ -172,6 +172,19 @@
     \else\PackageWarning{aufgabenzettel}{You must enable --shell-escape to use this feature: `\\mitLoesungsDatei'.}\fi%
     \else\mitLoesung\fi%
 }
+
+%%% Commands to input exercises directly from a file
+\def\inputaufgabe{\@ifstar\@inputaufgabe\@@inputaufgabe}
+% starred version: uses filename as heading "catalogue style"
+% also assumes the Darmstadt convention that the file begins with an \item
+% containing keywords
+\newcommand{\@inputaufgabe}[1]{%
+    \meinabschnitt*{\large\bfseries\detokenize{#1}}% section and heading
+    \addcontentsline{toc}{subsection}{\detokenize{#1}}% pdf bookmark
+    \par\begin{list}{}{}\input{#1}\end{list}%
+}
+% non-starred version: inputs the file and wraps it in a regular exercise env
+\newcommand{\@@inputaufgabe}[1]{\expandafter\aufgabe\@@input{#1}\endaufgabe}
 %%%%%%%%%%%%%%%%%%%% END EXERCISE/SOLUTION ENV %%%%%%%%%%%%%%%%%%%%
 
 
@@ -326,11 +339,8 @@
 %%%%%%%%%%%%%%%%%%%% DARMSTADT COMPATIBILITY %%%%%%%%%%%%%%%%%%%%
 %\RequirePackage{letltxmacro} % already loaded above
 %%% Also allow the spelling with capital L
-\let\Loesung=\loesung\let\endLoesung=\endloesung%
-\let\@ORIGmitLoesung=\mitLoesung%
-\let\@ORIGohneLoesung=\ohneLoesung%
-\renewcommand{\mitLoesung}{\@ORIGmitLoesung\let\Loesung=\loesung\let\endLoesung=\endloesung}%
-\renewcommand{\ohneLoesung}{\@ORIGohneLoesung\let\Loesung=\loesung\let\endLoesung=\endloesung}%
+\def\Loesung{\loesung}%
+\def\endLoesung{\endloesung}%
 %%% Gobble the first line if it begins with an \item
 \LetLtxMacro{\@ORIGaufgabe}{\aufgabe}%
 \newcommand{\@gobbleline}[1]{\@ifnextchar\\{\ignorespaces\@gobble}{\@gobbleline}}%
