@@ -22,6 +22,13 @@
 #include:verbatim
 #include:xcolor
 
+# package options
+#keyvals:\usepackage/aufgabenzettel
+uebung
+klausur
+notitle
+#endkeyvals
+
 # main commands
 \aufgabenblock{title}#L2
 \aufgabenblock[A]{title}#L2
