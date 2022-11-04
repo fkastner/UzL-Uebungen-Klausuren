@@ -50,6 +50,7 @@ notitle
 
 # input directly from file
 \inputaufgabe{file}#i
+\inputaufgabe[text]{file}#i
 \inputaufgabe*{file}#i*
 
 # auxiliary commands

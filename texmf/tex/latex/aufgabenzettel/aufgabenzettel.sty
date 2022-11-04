@@ -1,6 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{aufgabenzettel}[2022/07/28 v1.6.0 Aufgabenzettel fuer das Mathe-Institut UzL]
-\PackageInfo{aufgabenzettel}{Version 2022/07/28 v1.6.0}
+\ProvidesPackage{aufgabenzettel}[2022/11/04 v1.6.1 Aufgabenzettel fuer das Mathe-Institut UzL]
+\PackageInfo{aufgabenzettel}{Version 2022/11/04 v1.6.1}
 %%%%%%%%%%%%%%%%%%%% PACKAGES %%%%%%%%%%%%%%%%%%%%
 \RequirePackage{lmodern}
 
@@ -184,7 +184,7 @@
     \par\begin{list}{}{}\input{#1}\end{list}%
 }
 % non-starred version: inputs the file and wraps it in a regular exercise env
-\newcommand{\@@inputaufgabe}[1]{\expandafter\aufgabe\@@input{#1}\endaufgabe}
+\newcommand{\@@inputaufgabe}[2][]{\begingroup\def\argopt{#1}\expandafter\aufgabe\expandafter[\expandafter\argopt\expandafter]\@@input{#2}\endaufgabe\endgroup}
 %%%%%%%%%%%%%%%%%%%% END EXERCISE/SOLUTION ENV %%%%%%%%%%%%%%%%%%%%
 
 
